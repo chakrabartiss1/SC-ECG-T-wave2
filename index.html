@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Transmural EP Vector Synthesis Workstation</title>
+  
+  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRyYW5zbXVyYWwgRVAgV29ya3N0YXRpb24iLAogICJzaG9ydF9uYW1lIjogIkVQIENhbGMiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA3MGEwZiIsCiAgInRoZW1lX2NvbG9yIjogIiMwZjE3MmEiLAogICJkZXNjcmlwdGlvbiI6ICIzRCBUcmFuc211cmFsIFZlbnRyaWN1bGFyIE1hcHBpbmcgJiBFQ0cgVmVjdG9yIFN5bnRoZXNpcyBXb3Jrc3RhdGlvbiIKfQ==">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EP Workstation">
+
+  <style>
+    :root {
+      --bg-dark: #070a0f;
+      --panel-bg: #0f172a;
+      --panel-border: #1e293b;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --accent-yellow: #fbbf24;
+      --accent-purple: #c084fc;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --endo-color: #38bdf8;
+      --m-color: #fbbf24;
+      --epi-color: #f87171;
+      --safe-area-top: env(safe-area-inset-top, 0px);
+      --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body { 
+      background-color: var(--bg-dark); 
+      color: var(--text-main); 
+      padding: calc(8px + var(--safe-area-top)) 8px calc(12px + var(--safe-area-bottom)) 8px;
+      display: flex; 
+      flex-direction: column; 
+      gap: 10px; 
+      width: 100vw;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    header { 
+      background: var(--panel-bg); 
+      border: 1px solid var(--panel-border); 
+      padding: 10px 12px; 
+      border-radius: 10px; 
+      display: flex; 
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 { font-size: 0.95rem; color: var(--accent-blue); font-weight: 700; letter-spacing: 0.2px; line-height: 1.2; }
+    .subtitle { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .reset-btn { 
+      background: #1e293b; 
+      border: 1px solid #334155; 
+      color: #f8fafc; 
+      font-weight: 600; 
+      padding: 6px 10px; 
+      font-size: 0.70rem; 
+      border-radius: 6px; 
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .reset-btn:active { background: var(--accent-blue); color: #000; }
+
+    .mobile-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    @media (min-width: 1024px) {
+      .mobile-layout {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 14px;
+        align-items: start;
+      }
+    }
+
+    .sidebar-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .control-group { display: flex; flex-direction: column; gap: 6px; }
+    select, button { 
+      background: #1e293b; 
+      border: 1px solid #334155; 
+      color: var(--text-main); 
+      padding: 8px 10px; 
+      border-radius: 6px; 
+      font-size: 0.76rem; 
+      outline: none; 
+      width: 100%;
+    }
+    
+    .slider-container { display: flex; flex-direction: column; gap: 2px; }
+    .slider-header { display: flex; justify-content: space-between; font-size: 0.70rem; color: var(--text-muted); }
+    input[type=range] { width: 100%; accent-color: var(--accent-blue); height: 26px; cursor: pointer; }
+
+    .layer-card { background: #161e2e; border: 1px solid #283548; border-radius: 6px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
+    .layer-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.73rem; font-weight: 600; }
+    .layer-header input[type="checkbox"] { accent-color: var(--accent-blue); width: 16px; height: 16px; cursor: pointer; }
+
+    .main-workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .metrics-grid { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 6px; 
+    }
+    
+    @media (min-width: 600px) {
+      .metrics-grid { grid-template-columns: repeat(7, 1fr); }
+    }
+    
+    .metric-card { 
+      background: var(--panel-bg); 
+      border: 1px solid var(--panel-border); 
+      border-radius: 8px; 
+      padding: 6px 4px; 
+      display: flex; 
+      flex-direction: column; 
+      text-align: center; 
+    }
+    .metric-label { font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+    .metric-value { font-size: 0.88rem; font-weight: 700; color: var(--accent-green); margin-top: 1px; }
+
+    .display-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-header {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .canvas-container {
+      width: 100%;
+      position: relative;
+    }
+
+    canvas { 
+      width: 100%; 
+      height: 100%;
+      background: #000000; 
+      border-radius: 6px; 
+      border: 1px solid #1e293b; 
+      display: block; 
+    }
+
+    .ecg-stack { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+
+    .ep-card {
+      background: #0b111e;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.74rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ep-section-header {
+      font-size: 0.80rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ep-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-high { background: rgba(52, 211, 153, 0.18); color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .badge-mod { background: rgba(251, 191, 36, 0.18); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+
+    .ep-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    @media (min-width: 600px) {
+      .ep-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .ep-box {
+      background: #141d2e;
+      border: 1px solid #24334a;
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ep-box h4 {
+      color: var(--accent-blue);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .stat-breakdown {
+      background: #111a2b;
+      border-left: 3px solid var(--accent-yellow);
+      padding: 8px 10px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.72rem;
+    }
+    .stat-breakdown strong { color: var(--accent-yellow); }
+
+    .clin-box {
+      background: #111a2b;
+      border-left: 3px solid var(--accent-green);
+      padding: 8px 10px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.72rem;
+    }
+    .clin-box strong { color: var(--accent-green); }
+
+    .ref-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ref-list li {
+      background: #141d2e;
+      border: 1px solid #24334a;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.70rem;
+    }
+
+    .ref-list a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .ref-list a:hover { text-decoration: underline; }
+
+    .map-legend {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(15, 23, 42, 0.90);
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 0.60rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      pointer-events: none;
+    }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+    .legend-box { width: 8px; height: 8px; border-radius: 2px; }
+
+    .collapsible-trigger {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .collapsible-trigger::after {
+      content: '▲';
+      font-size: 0.65rem;
+      color: var(--accent-blue);
+      transition: transform 0.2s ease;
+    }
+    .collapsible-trigger.collapsed::after {
+      transform: rotate(180deg);
+    }
+    .collapsible-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .collapsible-content.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Transmural EP Vector Workstation</h1>
+      <div class="subtitle">Anatomic Slab Heatmap, AP Generator & Delta-V Simulator</div>
+    </div>
+    <div class="header-actions">
+      <button class="reset-btn" id="btnInstallApp" style="display:none; background:var(--accent-blue); color:#000;">Install App</button>
+      <button class="reset-btn" id="btnResetDefault">Reset</button>
+    </div>
+  </header>
+
+  <div class="mobile-layout">
+
+    <div class="sidebar-panel">
+      <div class="collapsible-trigger section-title" id="controlAccordionHeader">
+        <span>Interactive Controls & Parameters</span>
+      </div>
+      
+      <div class="collapsible-content" id="controlAccordionContent">
+        <div class="control-group">
+          <div class="section-title">Anatomic Substrate & Disease Model</div>
+          <select id="chamberSelect">
+            <option value="RV" selected>RV Substrate (Right Ventricle)</option>
+            <option value="LV">LV Substrate (Left Ventricle)</option>
+            <option value="HCM">HCM Substrate (Asymmetric Septal Hypertrophy)</option>
+          </select>
+          <select id="conditionSelect">
+            <option value="normal" selected>Normal Physiology</option>
+            <option value="brugada1">Brugada Type 1 (RV Free Wall AP Loss/Delay)</option>
+            <option value="brugada2">Brugada Type 2 (Saddleback Profile)</option>
+            <option value="arvc">ARVC (RV Free Wall / Septal Delay + Epsilon + TWI)</option>
+            <option value="lqt1">LQT1 (IKs Defect - Broad-Based T Wave)</option>
+            <option value="lqt2">LQT2 (IKr Defect - Low Amplitude / Bifid T Wave)</option>
+            <option value="lqt3">LQT3 (INa Late Inward - Long ST Segment)</option>
+            <option value="hcm">HCM (Septal Disarray + Dagger Qs + Deep TWI)</option>
+            <option value="burntout">Burnt-out / End-Stage CMO (Transmural Scar & Low Voltage)</option>
+            <option value="ischemia">Subendocardial Ischemia (Slow Conduction + Peri-Ischemic QRS Delay)</option>
+            <option value="infarct">Established Acute Transmural STEMI (Infarct / Path Q + Wide QRS)</option>
+            <option value="hf">Heart Failure / Remodeling (QRS Widening + LBBB Pattern)</option>
+          </select>
+        </div>
+
+        <hr style="border-color: var(--panel-border);">
+
+        <div class="control-group">
+          <div class="section-title">AV Conduction & PR Interval</div>
+          <div class="slider-container">
+            <div class="slider-header"><span>PR Interval Delay (AV Nodal / His)</span><span id="prDelayVal">160 ms</span></div>
+            <input type="range" id="prDelaySlider" min="100" max="320" value="160" step="5">
+          </div>
+        </div>
+
+        <hr style="border-color: var(--panel-border);">
+
+        <div class="control-group">
+          <div class="section-title">Transmural Kinetics</div>
+          <div class="slider-container">
+            <div class="slider-header"><span>M-Cell APD Dispersal (Tpe Extent)</span><span id="rvfwMDispVal">45 ms</span></div>
+            <input type="range" id="rvfwMDispSlider" min="0" max="180" value="45" step="1">
+          </div>
+          <div class="slider-container">
+            <div class="slider-header"><span>Endo-to-Epi Conduction Delay (QRS Lag)</span><span id="delayVal">18 ms</span></div>
+            <input type="range" id="delaySlider" min="0" max="120" value="18" step="1">
+          </div>
+        </div>
+
+        <hr style="border-color: var(--panel-border);">
+
+        <div class="control-group">
+          <div class="section-title">Layer Thickness & Relative Mass</div>
+          
+          <div class="layer-card" style="border-left: 3px solid var(--endo-color);">
+            <div class="layer-header"><span style="color:var(--endo-color)">Endocardium</span><input type="checkbox" id="endoToggle" checked></div>
+            <div class="slider-container"><input type="range" id="endoSlider" min="1" max="100" value="100"><span id="endoVal" style="font-size:0.65rem; text-align:right;">100%</span></div>
+          </div>
+
+          <div class="layer-card" style="border-left: 3px solid var(--m-color);">
+            <div class="layer-header"><span style="color:var(--m-color)">Mid-Myocardium (M-Cell)</span><input type="checkbox" id="mToggle" checked></div>
+            <div class="slider-container"><input type="range" id="mSlider" min="1" max="100" value="100"><span id="mVal" style="font-size:0.65rem; text-align:right;">100%</span></div>
+          </div>
+
+          <div class="layer-card" style="border-left: 3px solid var(--epi-color);">
+            <div class="layer-header"><span style="color:var(--epi-color)">Epicardium</span><input type="checkbox" id="epiToggle" checked></div>
+            <div class="slider-container"><input type="range" id="epiSlider" min="1" max="100" value="100"><span id="epiVal" style="font-size:0.65rem; text-align:right;">100%</span></div>
+          </div>
+        </div>
+
+        <hr style="border-color: var(--panel-border);">
+
+        <div class="control-group">
+          <div class="section-title">Regional Vector Mass Contribution</div>
+          <div class="slider-container">
+            <div class="slider-header"><span>Hypertrophied Septal Mass (ASH)</span><span id="septumVal">100%</span></div>
+            <input type="range" id="septumSlider" min="0" max="250" value="100">
+          </div>
+          <div class="slider-container">
+            <div class="slider-header"><span>RV Ant. Free Wall Mass</span><span id="rvfwVal">100%</span></div>
+            <input type="range" id="rvfwSlider" min="0" max="150" value="100">
+          </div>
+          <div class="slider-container">
+            <div class="slider-header"><span>LV Free Wall Mass</span><span id="lvfwVal">100%</span></div>
+            <input type="range" id="lvfwSlider" min="0" max="200" value="100">
+          </div>
+        </div>
+
+        <hr style="border-color: var(--panel-border);">
+
+        <div class="control-group">
+          <div class="section-title">Timebase & Gain Calibration</div>
+          <div class="slider-container">
+            <div class="slider-header"><span>Sweep Speed</span><span id="sweepVal">5 mm/s</span></div>
+            <input type="range" id="sweepSlider" min="2" max="50" value="5" step="1">
+          </div>
+          <div class="slider-container">
+            <div class="slider-header"><span>ECG Gain</span><span id="ecgGainVal">20 mm/mV</span></div>
+            <input type="range" id="ecgGainSlider" min="5" max="40" value="20" step="1">
+          </div>
+          <div class="slider-container">
+            <div class="slider-header"><span>Heart Rate</span><span id="hrVal">60 BPM</span></div>
+            <input type="range" id="hrSlider" min="30" max="180" value="60">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="main-workspace">
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">PR Interval</span>
+          <span class="metric-value" id="mPR">160 ms</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">APD Dispersal</span>
+          <span class="metric-value" id="mAPD">45 ms</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Activation Delay</span>
+          <span class="metric-value" id="mDelay">18 ms</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">V1 J-Point / Q</span>
+          <span class="metric-value" id="mJpoint">+0.02 mV</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Tpeak-Tend</span>
+          <span class="metric-value" id="mTpe">76 ms</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">QRS Width</span>
+          <span class="metric-value" id="mQRS">88 ms</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Cycle Length</span>
+          <span class="metric-value" id="mCL">1000 ms</span>
+        </div>
+      </div>
+
+      <div class="display-card">
+        <div class="card-header">
+          <span>1. Wall Slab Heatmap & Expanded Circular Transmural Gauge</span>
+          <span style="font-size:0.65rem; color:var(--text-muted);">Proportional Layer Geometries (%)</span>
+        </div>
+        <div class="canvas-container" style="height: 210px;">
+          <canvas id="map3dCanvas"></canvas>
+          <div class="map-legend">
+            <div class="legend-item"><div class="legend-box" style="background:#38bdf8;"></div><span>Depol Phase 0 (+30mV)</span></div>
+            <div class="legend-item"><div class="legend-box" style="background:#fbbf24;"></div><span>Phase 2 Plateau (ΔV≈0)</span></div>
+            <div class="legend-item"><div class="legend-box" style="background:#f87171;"></div><span>Repol Phase 4 (-85mV)</span></div>
+            <div class="legend-item"><div class="legend-box" style="background:#34d399;"></div><span>Net Vector (ΔV)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="display-card">
+        <div class="card-header">
+          <span>2. Action Potentials & Phase 3 Repolarization</span>
+          <span style="font-size:0.65rem; color:var(--text-muted);">Endo / M-Cell / Epi Synchronized</span>
+        </div>
+        <div class="canvas-container" style="height: 135px;">
+          <canvas id="apCanvas"></canvas>
+        </div>
+      </div>
+
+      <div class="display-card">
+        <div class="card-header">
+          <span>3. Surface ECG (V1, aVF, V6) with P Wave, PR Segment & T Wave</span>
+          <span style="font-size:0.70rem; color:#ef4444; font-family:monospace;" id="leadInfo">5 mm/s | 20 mm/mV</span>
+        </div>
+        <div class="ecg-stack">
+          <div class="canvas-container" style="height: 100px;"><canvas id="ecgV1"></canvas></div>
+          <div class="canvas-container" style="height: 100px;"><canvas id="ecgAVF"></canvas></div>
+          <div class="canvas-container" style="height: 100px;"><canvas id="ecgV6"></canvas></div>
+        </div>
+      </div>
+
+      <div class="ep-card">
+        <div class="ep-section-header">
+          <span id="epSubstrateTitle">Rigorous Medical Evidence Partner Framework</span>
+          <span class="ep-badge badge-mod" id="epConfidenceBadge">Moderate Confidence</span>
+        </div>
+
+        <div>
+          <strong style="color:var(--accent-blue);">Bottom Line:</strong>
+          <span id="epBottomLine">Selecting a clinical substrate model unmasks substrate-specific transmural vector kinetics, ST-segment deviations, diagnostic T-wave morphological alterations, and underlying evidence limits.</span>
+        </div>
+
+        <div>
+          <strong style="color:var(--accent-blue);">What the Evidence Shows:</strong>
+          <div id="epEvidenceSummary" style="font-size:0.72rem; margin-top:2px;">Summary of primary studies, systematic reviews, and professional society consensus.</div>
+        </div>
+
+        <div class="stat-breakdown">
+          <strong>Statistical Methodology, Limitations & Author Blind Spots:</strong>
+          <span id="epStatMethod">Analytical breakdown of diagnostic sensitivities, specificities, surrogate vs hard clinical outcomes, and hidden author reporting biases.</span>
+        </div>
+
+        <div class="ep-grid">
+          <div class="ep-box">
+            <h4>What We Know (High Certainty)</h4>
+            <div id="epWhatWeKnow" style="font-size:0.70rem;">Established electrophysiological mechanisms supported by consistent mapping data.</div>
+          </div>
+          <div class="ep-box">
+            <h4>What Remains Uncertain / Unknown</h4>
+            <div id="epWhatWeDontKnow" style="font-size:0.70rem;">Unanswered clinical questions, grey areas, and trial evidence gaps.</div>
+          </div>
+        </div>
+
+        <div class="clin-box">
+          <strong>Practical Clinical Reasoning & Guideline Translation:</strong>
+          <span id="epClinicalInterpretation">Translation of electrophysiological evidence into bedside risk stratification and actionable clinical management.</span>
+        </div>
+
+        <div>
+          <strong style="color:var(--accent-blue);">Key Peer-Reviewed References & PMIDs:</strong>
+          <ul class="ref-list" id="epRefList">
+            <li>Select a substrate model to load validated PMID citations and literature appraisals.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    let deferredPrompt = null;
+    const btnInstallApp = document.getElementById('btnInstallApp');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      btnInstallApp.style.display = 'inline-block';
+    });
+
+    btnInstallApp.addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            btnInstallApp.style.display = 'none';
+          }
+          deferredPrompt = null;
+        });
+      }
+    });
+
+    const controlAccordionHeader = document.getElementById('controlAccordionHeader');
+    const controlAccordionContent = document.getElementById('controlAccordionContent');
+
+    controlAccordionHeader.addEventListener('click', () => {
+      const isHidden = controlAccordionContent.classList.toggle('hidden');
+      controlAccordionHeader.classList.toggle('collapsed', isHidden);
+      setTimeout(update, 100);
+    });
+
+    if (window.innerWidth < 600) {
+      controlAccordionContent.classList.add('hidden');
+      controlAccordionHeader.classList.add('collapsed');
+    }
+
+    const DEFAULTS = {
+      chamber: 'RV',
+      condition: 'normal',
+      hr: 60,
+      prDelay: 160,
+      ecgGain: 20,
+      sweepSpeed: 5,
+      transmuralDelay: 18,
+      apdDispersal: 45,
+      layers: {
+        endo: { active: true, pct: 100 },
+        m: { active: true, pct: 100 },
+        epi: { active: true, pct: 100 }
+      },
+      regions: { septum: 100, rvfw: 100, lvfw: 100 }
+    };
+
+    let state = JSON.parse(JSON.stringify(DEFAULTS));
+    let animationFrameId = null;
+
+    const EVIDENCE_DATA = {
+      normal: {
+        title: "Normal Physiology: Action Potential - QRS/ST/T Sequence & Vector Mechanics",
+        confidence: "High Confidence",
+        badgeClass: "badge-high",
+        bottomLine: "Phase 0 endocardial depolarization inscribes the QRS (propagating Endo -> Epi). During Phase 2 AP plateau, transmural membrane voltages remain uniform across layers (isoelectric ST segment). Phase 3 repolarization heterogeneity initiates earlier in epicardium than endocardium (propagating Epi -> Endo), driving the upright surface T wave.",
+        evidenceSummary: "Intracellular recordings and tissue wedge mapping (Yan & Antzelevitch) prove that Phase 2 plateau voltage uniformity accounts for the flat ST segment. As Phase 3 repolarization begins in the epicardium, the transmural voltage gradient (Vendo - Vepi) expands, inscribing the T wave.",
+        statMethod: "Evidence derived from arterially perfused canine tissue wedges and optical mapping. Limitation: In-vitro wedges lack electrotonic gap junction coupling (Connexin 43) present in-vivo, overestimating intrinsic M-cell APD dispersion.",
+        whatWeKnow: "1. The ST segment is isoelectric due to minimal transmural voltage gradients during Phase 2 plateau.<br>2. Epicardial Phase 3 repolarization begins first, projecting an upright T wave in concordant leads.<br>3. Tpeak-Tend mirrors transmural dispersion of repolarization.",
+        whatWeDontKnow: "1. Contribution of transmural vs apico-basal repolarization gradients in conscious humans.<br>2. Prognostic utility of isolated Tpeak-Tend changes in structurally normal hearts.",
+        clinicalInterpretation: "Normal surface ECGs exhibit an isoelectric ST segment followed by concordant upright T waves. Primary ST elevation/depression or T-wave inversion reflects disrupted Phase 2/3 transmural gradients.",
+        refs: [
+          { citation: "Yan GX, Antzelevitch C. Cellular basis for the normal T wave and the electrocardiographic manifestations of the long-QT syndrome. Circulation. 1998;98(18):1928-1936.", pmid: "9788838", link: "https://pubmed.ncbi.nlm.nih.gov/9788838/" },
+          { citation: "Antzelevitch C. Cellular basis for the repolarization waves of the ECG. Ann N Y Acad Sci. 2006;1080:268-281.", pmid: "17132789", link: "https://pubmed.ncbi.nlm.nih.gov/17132789/" }
+        ]
+      },
+      brugada1: {
+        title: "Brugada Syndrome Type 1: RV Epicardial AP Dome Loss & Local Conduction Delay",
+        confidence: "Moderate Confidence",
+        badgeClass: "badge-mod",
+        bottomLine: "Selective Ito-mediated epicardial Phase 1 notch deepening/dome collapse and slow conduction in the RV free wall create a massive transmural Phase 2 voltage gradient, yielding coved ST elevation (>=2 mm) merging into inverted T waves.",
+        evidenceSummary: "High-density epicardial mapping (Nademanee et al.) demonstrates localized low-voltage, fragmented late potentials in the anterior RV epicardium. RF ablation of this epicardial substrate normalizes the Type 1 ST-T pattern and suppresses VF.",
+        statMethod: "Observational mapping cohorts and canine wedge models. Kappa reliability for Type 1 ECG reading is ~0.62. Ongoing debate regarding repolarization (loss of dome) vs depolarization (conduction delay) mechanisms.",
+        whatWeKnow: "1. RV subepicardial substrate ablation eliminates the spontaneous Type 1 ECG pattern and VF storms.<br>2. High epicardial Ito density predisposes to Phase 2 re-entry.",
+        whatWeDontKnow: "1. Exact interplay between structural micro-fibrosis and Phase 2 AP dome collapse in individual patients.<br>2. SCD risk in asymptomatic isolated drug-induced Type 1 patterns remains low (~0.5%/yr).",
+        clinicalInterpretation: "Spontaneous Type 1 coved ST elevation requires high-priority risk stratification. Asymptomatic drug-induced patterns do not automatically warrant ICD implantation.",
+        refs: [
+          { citation: "Yan GX, Antzelevitch C. Cellular basis for the Brugada syndrome. Circulation. 1999;100(15):1660-1666.", pmid: "10517743", link: "https://pubmed.ncbi.nlm.nih.gov/10517743/" },
+          { citation: "Nademanee K, et al. Prevention of ventricular fibrillation episodes in Brugada syndrome by catheter ablation over the anterior right ventricular outflow tract epicardium. Circulation. 2011;123(12):1270-1279.", pmid: "21403098", link: "https://pubmed.ncbi.nlm.nih.gov/21403098/" }
+        ]
+      },
+      brugada2: {
+        title: "Brugada Syndrome Type 2: Saddleback Profile",
+        confidence: "Moderate Confidence",
+        badgeClass: "badge-mod",
+        bottomLine: "Partial epicardial AP dome depression inscribes a saddleback ST segment (>=1 mm elevation) followed by a positive or biphasic T wave in V1-V2.",
+        evidenceSummary: "Consensus criteria mandate that Type 2 saddleback patterns are non-diagnostic unless converted to Type 1 spontaneously or via sodium channel blockade (Ajmaline/Flecainide).",
+        statMethod: "Unconfirmed Type 2 pattern specificity is <60%. Pectus excavatum and high lead placement frequently generate false-positive saddleback patterns.",
+        whatWeKnow: "1. Type 2 saddleback ECG is non-diagnostic on its own for clinical Brugada syndrome.<br>2. Sodium channel provocation unmasks latent SCN5A loss of function.",
+        whatWeDontKnow: "1. Spontaneous conversion rate from Type 2 to Type 1 pattern over long-term follow-up.<br>2. Optimal management for asymptomatic individuals with persistent Type 2 patterns.",
+        clinicalInterpretation: "High precordial lead placement (2nd/3rd ICS) and sodium channel blocker challenge are recommended when evaluating ambiguous saddleback patterns.",
+        refs: [
+          { citation: "Wilde AA, et al. Proposed diagnostic criteria for the Brugada syndrome: consensus report. Circulation. 2002;106(19):2514-2519.", pmid: "12417552", link: "https://pubmed.ncbi.nlm.nih.gov/12417552/" }
+        ]
+      },
+      arvc: {
+        title: "ARVC Substrate: RV Conduction Delay, Epsilon Waves & TWI",
+        confidence: "High Confidence",
+        badgeClass: "badge-high",
+        bottomLine: "Fibrofatty replacement insulates RV free wall epicardium, delaying activation past QRS (Epsilon wave). Secondary repolarization alterations shift the ST-T segment, inscribing right precordial T-wave inversion (V1-V3).",
+        evidenceSummary: "2010 Task Force Criteria establish V1-V3 TWI as a Major Criterion. Signal-averaged ECG and high-gain recordings unmask post-QRS Epsilon deflections.",
+        statMethod: "TWI specificity for ARVC is ~90-95%; Epsilon wave sensitivity is low (~25-30%) due to standard 40 Hz low-pass filter smoothing.",
+        whatWeKnow: "1. Right precordial TWI beyond V2 in post-pubertal non-athletes strongly points to ARVC.<br>2. Extension of TWI to V4-V6 correlates with LV involvement or severe RV dilation.",
+        whatWeDontKnow: "1. Independent predictive power of TWI depth progression for SCD vs total CMR scar burden.<br>2. Sensitivity of ST-T abnormalities in early concealed gene carriers.",
+        clinicalInterpretation: "Precordial TWI beyond V2 warrants cardiac MRI, high-gain ECG inspection for Epsilon waves, and family screening.",
+        refs: [
+          { citation: "Marcus FI, et al. Diagnosis of arrhythmogenic right ventricular cardiomyopathy/dysplasia: proposed modification of the Task Force Criteria. Circulation. 2010;121(13):1533-1541.", pmid: "20172964", link: "https://pubmed.ncbi.nlm.nih.gov/20172964/" }
+        ]
+      },
+      lqt1: {
+        title: "Long QT Type 1 (LQT1): IKs Defect & Broad-Based T Waves",
+        confidence: "High Confidence",
+        badgeClass: "badge-high",
+        bottomLine: "Loss-of-function mutation in KCNQ1 impairs the slow delayed rectifier potassium current (IKs). Because IKs is essential for APD shortening during sympathetic activation, APD is globally prolonged across layers, inscribing broad-based, high-voltage T waves.",
+        evidenceSummary: "Genotype-phenotype studies (Moss et al., Schwartz et al.) demonstrate that LQT1 patients exhibit broad-based T waves that fail to shorten normally during exercise, predisposing to adrenergic Torsades de Pointes.",
+        statMethod: "Genotype correlation studies have high specificity (>90%). Limitation: QTc interval overlap exists between silent gene carriers and normal individuals (borderline QTc 440-470 ms).",
+        whatWeKnow: "1. KCNQ1 loss of function impairs adrenergic APD adaptation.<br>2. Beta-blockers (Nadolol/Propranolol) are highly effective in suppressing cardiac events in LQT1.",
+        whatWeDontKnow: "1. Precise penetrance variations among specific pore vs non-pore KCNQ1 mutations.<br>2. Absolute SCD risk in asymptomatic low-QTc LQT1 adults.",
+        clinicalInterpretation: "Identify broad-based T waves; restrict competitive swimming/exertional stress and initiate first-line beta-blocker therapy.",
+        refs: [
+          { citation: "Moss AJ, et al. ECG T-wave patterns in genetically confirmed LQT1, LQT2, and LQT3 forms of the congenital long-QT syndrome. Circulation. 1995;92(10):2929-2934.", pmid: "7586248", link: "https://pubmed.ncbi.nlm.nih.gov/7586248/" }
+        ]
+      },
+      lqt2: {
+        title: "Long QT Type 2 (LQT2): IKr Defect & Low-Amplitude / Notch T Waves",
+        confidence: "High Confidence",
+        badgeClass: "badge-high",
+        bottomLine: "KCNH2 (HERG) mutations impair rapid delayed rectifier potassium current (IKr). Severe Phase 3 repolarization slowing and exaggerated M-cell APD prolongation produce low-amplitude, notched, or bifid T waves.",
+        evidenceSummary: "Tissue wedge models (Antzelevitch et al.) prove that IKr reduction selectively lengthens M-cell APD relative to epicardium, markedly widening Tpeak-Tend and predisposing to early afterdepolarizations (EADs) triggered by acoustic noise or startle.",
+        statMethod: "Notched T-wave morphology in lead V4 has ~75% sensitivity for LQT2 genotype. High inter-observer reliability when evaluating low-amplitude notches in precordial leads.",
+        whatWeKnow: "1. KCNH2 loss of function increases M-cell APD dispersal and Tpeak-Tend.<br>2. Acoustic arousal (alarm clocks, phone rings) and postpartum state are specific triggers for TdP in LQT2.",
+        whatWeDontKnow: "1. Differential efficacy of Mexiletine in specific KCNH2 trafficking vs pore-gating mutations.<br>2. Exact cellular mechanism of acoustic trigger susceptibility.",
+        clinicalInterpretation: "Avoid QT-prolonging drugs; maintain serum potassium >4.0 mEq/L; prescribe beta-blockers and counsel regarding acoustic triggers.",
+        refs: [
+          { citation: "Shimizu W, Antzelevitch C. Cellular basis for the ECG manifestations of the congenital long-QT syndrome. J Cardiovasc Electrophysiol. 1999;10(9):1201-1215.", pmid: "10517596", link: "https://pubmed.ncbi.nlm.nih.gov/10517596/" }
+        ]
+      },
+      lqt3: {
+        title: "Long QT Type 3 (LQT3): INa Late Inward Current & Prolonged ST Segment",
+        confidence: "High Confidence",
+        badgeClass: "badge-high",
+        bottomLine: "SCN5A gain-of-function mutation prevents complete inactivation of fast sodium channels, generating a persistent late inward sodium current (INa,late). This sustains Phase 2 plateau voltage, causing a long isoelectric ST segment followed by a late, narrow, peaked T wave.",
+        evidenceSummary: "Clinical trials and wedge mapping confirm that late INa entry delays Phase 3 repolarization initiation without expanding early Phase 1/2 gradients. Mexiletine (late INa blocker) selectively shortens QTc in LQT3.",
+        statMethod: "Mexiletine acute oral challenge yields >40 ms QTc shortening in >75% of SCN5A mutation carriers, serving as both diagnostic proof of mechanism and therapeutic guide.",
+        whatWeKnow: "1. SCN5A gain of function causes late INa inward current during Phase 2 plateau.<br>2. Cardiac events occur predominantly during rest, sleep, or bradycardia.",
+        whatWeDontKnow: "1. Long-term mortality reduction of Mexiletine monotherapy vs combination with beta-blockers or ICD.<br>2. Gene-specific response variability across different SCN5A transmembrane domain mutations.",
+        clinicalInterpretation: "Evaluate LQT3 patients for late sodium channel blocker therapy (Mexiletine) alongside beta-blockers/ICD; monitor nocturnal bradycardia.",
+        refs: [
+          { citation: "Schwartz PJ, et al. Long QT syndrome patients with mutations on the SCN5A gene show a fine response to mexiletine. Circulation. 1995;92(12):3381-3386.", pmid: "8521552", link: "https://pubmed.ncbi.nlm.nih.gov/8521552/" }
+        ]
+      },
+      hcm: {
+        title: "Hypertrophic Cardiomyopathy: Septal Vector Expansion & Deep TWI",
+        confidence: "High Confidence",
+        badgeClass: "badge-high",
+        bottomLine: "Asymmetric septal hypertrophy creates expanded septal Q waves ('dagger Qs'). Apical HCM (Yamaguchi) drives extreme M-cell APD prolongation, inscribing giant deep T-wave inversions (>10 mm).",
+        evidenceSummary: "2024 AHA/ACC Guidelines confirm narrow dagger Q waves (<40 ms) reflect septal mass expansion rather than infarction. Giant TWI correlates with apical wall thickening and CMR LGE scar.",
+        statMethod: "Dagger Q waves are commonly misdiagnosed as ischemic necrosis in acute settings. CMR LGE provides definitive tissue characterization.",
+        whatWeKnow: "1. Dagger Q waves represent early septal depolarization vector expansion with preserved Phase 0 velocity.<br>2. Giant precordial T-wave inversion mirrors apical M-cell APD prolongation.",
+        whatWeDontKnow: "1. Differential impact of specific sarcomeric gene mutations (MYBPC3 vs MYH7) on repolarization heterogeneity.<br>2. Response of T-wave inversion depth to cardiac myosin inhibitor therapy.",
+        clinicalInterpretation: "Differentiate narrow HCM dagger Qs (<40 ms) from wide ischemic Qs (>40 ms). Deep symmetric TWI mandates CMR to exclude apical HCM and apical aneurysms.",
+        refs: [
+          { citation: "Yamaguchi H, et al. Hypertrophic nonobstructive cardiomyopathy with giant negative T waves (apical hypertrophy). Am J Cardiol. 1979;44(3):401-412.", pmid: "474404", link: "https://pubmed.ncbi.nlm.nih.gov/474404/" },
+          { citation: "Ommen SR, et al. 2024 AHA/ACC Guideline for the Diagnosis and Treatment of Patients With Hypertrophic Cardiomyopathy. Circulation. 2024;149(23):e1223-e1318.", pmid: "38780795", link: "https://pubmed.ncbi.nlm.nih.gov/38780795/" }
+        ]
+      },
+      burntout: {
+        title: "Burnt-Out / End-Stage CMO: Transmural Scarring & Low Voltage",
+        confidence: "Moderate Confidence",
+        badgeClass: "badge-mod",
+        bottomLine: "Replacement fibrosis across endocardial, M-cell, and epicardial layers reduces total viable myocyte mass. This causes widespread QRS voltage attenuation (<0.5 mV in limb leads), fragmented intraventricular conduction, and flattened or shallowly inverted T waves.",
+        evidenceSummary: "CMR Late Gadolinium Enhancement (LGE) mapping studies reveal extensive transmural scar burden (>20% of LV mass) in end-stage dilated or hypertrophic cardiomyopathy. Loss of active Phase 0 sodium current and uncoupling of Connexin 43 gap junctions reduce vector amplitude.",
+        statMethod: "Low voltage criteria (QRS <0.5 mV in limb leads) have high specificity (>85%) for extensive myocardial fibrosis in non-amyloid heart failure cohorts.",
+        whatWeKnow: "1. Low ECG voltage in the setting of severe LV systolic dysfunction indicates extensive transmural scar.<br>2. QRS fragmentation mirrors intra-myocardial conduction delay around non-conductive scar borders.",
+        whatWeDontKnow: "1. Rate of fibrosis progression from hyperdynamic HCM to burnt-out phase in individual gene carriers.<br>2. Impact of sacubitril/valsartan or SGLT2 inhibitors on slowing voltage loss in end-stage CMO.",
+        clinicalInterpretation: "Recognize low QRS voltage with fragmented QRS and flattened T waves as markers of advanced structural remodeling; evaluate for advanced heart failure therapies and ICD/CRT.",
+        refs: [
+          { citation: "Biagini E, et al. End-stage hypertrophic cardiomyopathy: clinical course and outcome. J Am Coll Cardiol. 2005;46(8):1543-1550.", pmid: "16226181", link: "https://pubmed.ncbi.nlm.nih.gov/16226181/" }
+        ]
+      },
+      ischemia: {
+        title: "Subendocardial Ischemia: Slow Conduction, Peri-Ischemic Delay & QRS Widening",
+        confidence: "High Confidence",
+        badgeClass: "badge-high",
+        bottomLine: "Subendocardial hypoxia depolarizes resting membrane potential to -60 mV, partially inactivating voltage-gated fast Na+ channels (INa). This slows Phase 0 upstroke velocity (dV/dt max) and intra-myocardial conduction speed across peri-ischemic zones, producing measurable QRS widening (typically +10 to +25 ms) alongside horizontal ST depression.",
+        evidenceSummary: "Experimental and human mapping studies (Janse et al., Kleber et al.) establish that acute subendocardial ischemia depresses Phase 0 upstroke and uncouples gap junctions (Connexin 43), lengthening total intraventricular activation time and expanding QRS width on high-resolution surface ECG.",
+        statMethod: "Prospective STEMI/NSTEMI cohort analyses confirm that QRS duration prolongation during acute ischemia strongly predicts microvascular no-reflow and larger infarct size (PMC4588599).",
+        whatWeKnow: "1. Partial Na+ channel inactivation at -60 mV resting potential slows Phase 0 conduction velocity.<br>2. Peri-ischemic conduction delay measurably widens the surface QRS complex during active ischemia.<br>3. Successful reperfusion rapidly shortens QRS duration toward baseline.",
+        whatWeDontKnow: "1. Threshold of acute intra-myocardial gap junction uncoupling required to induce localized block vs generalized slowing.<br>2. Predictors of QRS prolongation for microvascular obstruction across diverse patient demographics.",
+        clinicalInterpretation: "Recognize that acute ischemia widens QRS complexes alongside ST-T deviations; serial QRS narrowing serves as a reliable marker of successful reperfusion.",
+        refs: [
+          { citation: "Karahan Z, et al. QRS duration: a novel marker of microvascular reperfusion as assessed by myocardial blush grade in ST elevation myocardial infarction patients undergoing a primary percutaneous intervention. PMC. 2015;4588599.", pmid: "26487920", link: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4588599/" },
+          { citation: "Kleber AG, et al. Mechanism of generalized and localized conduction delay in acute myocardial ischemia. Circulation. 1986;74(2):393-404.", pmid: "3731888", link: "https://pubmed.ncbi.nlm.nih.gov/3731888/" }
+        ]
+      },
+      infarct: {
+        title: "Acute Transmural STEMI / Infarct Model: Transmural Conduction Delay, Pathologic Q Wave & Convex STE",
+        confidence: "High Confidence",
+        badgeClass: "badge-high",
+        bottomLine: "Transmural infarction produces a wide, deep pathologic Q wave (>40 ms duration, >25% R-wave depth) due to initial electrical unresponsiveness in necrotic tissue. This is immediately followed by prominent convex ST-segment elevation ('tombstone' STEMI) and terminally inverted T waves, alongside marked total QRS prolongation.",
+        evidenceSummary: "Landmark epicardial mapping and wedge studies (Janse, Kleber, Antzelevitch, Di Diego) establish that acute transmural infarction eliminates initial Phase 0 vectors toward the lead (inscribing a broad pathologic Q wave) and creates dual diastolic/systolic injury currents that elevate the Phase 2 ST segment.",
+        statMethod: "The Fourth Universal Definition of MI establishes strict sex and age-stratified J-point elevation criteria (>=2.5 mm in young men, >=2.0 mm in older men, >=1.5 mm in women in V2-V3; >=1.0 mm in other leads). Reciprocal ST depression in anatomically opposite leads increases diagnostic specificity to >95%.",
+        whatWeKnow: "1. Loss of initial depolarization vectors in necrotic tissue produces broad, deep pathologic Q waves (>40 ms).<br>2. Diastolic and systolic injury currents elevate the ST segment with a classic convex-upward profile.<br>3. Emergency primary PCI within 90 minutes reduces infarct size, accelerates ST resolution, and improves survival.",
+        whatWeDontKnow: "1. Electrophysiological markers to distinguish microvascular no-reflow from irreversible necrosis in real time during PCI.<br>2. Molecular triggers of lethal Phase 2 re-entry (VF) during early reperfusion injury.",
+        clinicalInterpretation: "A broad pathologic Q wave accompanied by convex ST-segment elevation demands immediate catheterization lab activation for primary PCI.",
+        refs: [
+          { citation: "Thygesen K, et al. Fourth Universal Definition of Myocardial Infarction (2018). Circulation. 2018;138(20):e618-e651.", pmid: "29337952", link: "https://pubmed.ncbi.nlm.nih.gov/29337952/" },
+          { citation: "Di Diego JM, Antzelevitch C. Ischemic ST segment changes: cellular basis and technical artifacts. J Electrocardiol. 2014;47(4):445-453.", pmid: "24831613", link: "https://pubmed.ncbi.nlm.nih.gov/24831613/" }
+        ]
+      },
+      hf: {
+        title: "Heart Failure / Remodeling: Conduction Lag & Secondary ST-T Changes",
+        confidence: "High Confidence",
+        badgeClass: "badge-high",
+        bottomLine: "Intraventricular conduction slowing (LBBB >=120 ms) alters the depolarization sequence, forcing repolarization to follow depolarization and generating secondary ST depression with discordant T-wave inversion.",
+        evidenceSummary: "Mapping in heart failure demonstrates downregulation of INa and Ito alongside M-cell APD prolongation. Delayed LV lateral wall activation causes late repolarization, projecting a T vector opposite the main QRS.",
+        statMethod: "QRS widening (LBBB >=150 ms) strongly predicts CRT response in trials (MADIT-CRT). Secondary ST-T changes obscure ischemic changes, necessitating specialized rules (Sgarbossa/Smith criteria).",
+        whatWeKnow: "1. Wide QRS causes secondary ST-T changes with T waves discordant to the main QRS vector.<br>2. CRT pacing resynchronizes activation and partially reverses repolarization dyssynchrony.",
+        whatWeDontKnow: "1. Non-invasive markers to reliably distinguish secondary LBBB ST-T changes from acute subendocardial ischemia.<br>2. Reversibility of T-wave memory following prolonged biventricular pacing.",
+        clinicalInterpretation: "In LBBB, secondary ST depression and discordant T-wave inversion are expected; concordant ST elevation or depression signals acute ischemic injury.",
+        refs: [
+          { citation: "Akar FG, et al. Transmural heterogeneity of repolarization underlies the susceptibility to ventricular arrhythmias in heart failure. Basic Res Cardiol. 2002;97(1):I37-I45.", pmid: "12479672", link: "https://pubmed.ncbi.nlm.nih.gov/12479672/" }
+        ]
+      }
+    };
+
+    const chamberSelect = document.getElementById('chamberSelect');
+    const conditionSelect = document.getElementById('conditionSelect');
+    const btnResetDefault = document.getElementById('btnResetDefault');
+
+    const prDelaySlider = document.getElementById('prDelaySlider');
+    const prDelayVal = document.getElementById('prDelayVal');
+    const delaySlider = document.getElementById('delaySlider');
+    const rvfwMDispSlider = document.getElementById('rvfwMDispSlider');
+    const delayVal = document.getElementById('delayVal');
+    const rvfwMDispVal = document.getElementById('rvfwMDispVal');
+
+    const endoToggle = document.getElementById('endoToggle');
+    const mToggle = document.getElementById('mToggle');
+    const epiToggle = document.getElementById('epiToggle');
+
+    const endoSlider = document.getElementById('endoSlider');
+    const mSlider = document.getElementById('mSlider');
+    const epiSlider = document.getElementById('epiSlider');
+
+    const endoVal = document.getElementById('endoVal');
+    const mVal = document.getElementById('mVal');
+    const epiVal = document.getElementById('epiVal');
+
+    const septumSlider = document.getElementById('septumSlider');
+    const rvfwSlider = document.getElementById('rvfwSlider');
+    const lvfwSlider = document.getElementById('lvfwSlider');
+
+    const septumVal = document.getElementById('septumVal');
+    const rvfwVal = document.getElementById('rvfwVal');
+    const lvfwVal = document.getElementById('lvfwVal');
+
+    const sweepSlider = document.getElementById('sweepSlider');
+    const ecgGainSlider = document.getElementById('ecgGainSlider');
+    const hrSlider = document.getElementById('hrSlider');
+
+    const sweepVal = document.getElementById('sweepVal');
+    const ecgGainVal = document.getElementById('ecgGainVal');
+    const hrVal = document.getElementById('hrVal');
+
+    const map3dCanvas = document.getElementById('map3dCanvas');
+    const apCanvas = document.getElementById('apCanvas');
+    const ecgV1 = document.getElementById('ecgV1');
+    const ecgAVF = document.getElementById('ecgAVF');
+    const ecgV6 = document.getElementById('ecgV6');
+
+    const mPR = document.getElementById('mPR');
+    const mAPD = document.getElementById('mAPD');
+    const mDelay = document.getElementById('mDelay');
+    const mJpoint = document.getElementById('mJpoint');
+    const mTpe = document.getElementById('mTpe');
+    const mQRS = document.getElementById('mQRS');
+    const mCL = document.getElementById('mCL');
+
+    function updateEvidencePanel(condKey) {
+      const info = EVIDENCE_DATA[condKey] || EVIDENCE_DATA.normal;
+      document.getElementById('epSubstrateTitle').textContent = info.title;
+      
+      const badge = document.getElementById('epConfidenceBadge');
+      badge.textContent = info.confidence;
+      badge.className = `ep-badge ${info.badgeClass}`;
+
+      document.getElementById('epBottomLine').innerHTML = info.bottomLine;
+      document.getElementById('epEvidenceSummary').innerHTML = info.evidenceSummary;
+      document.getElementById('epStatMethod').innerHTML = info.statMethod;
+
+      if (condKey === 'normal') {
+        document.getElementById('epWhatWeKnow').innerHTML = 
+          "1. <strong>The ST segment is isoelectric</strong> due to minimal transmural voltage gradients during Phase 2 plateau.<br>" +
+          "2. <strong>Epicardial Phase 3 repolarization begins first</strong>, projecting an upright T wave in concordant leads.<br>" +
+          "3. <strong>Tpeak-Tend mirrors transmural dispersion of repolarization (TDR).</strong>";
+      } else {
+        document.getElementById('epWhatWeKnow').innerHTML = info.whatWeKnow;
+      }
+
+      document.getElementById('epWhatWeDontKnow').innerHTML = info.whatWeDontKnow;
+      document.getElementById('epClinicalInterpretation').innerHTML = info.clinicalInterpretation;
+
+      const refList = document.getElementById('epRefList');
+      refList.innerHTML = '';
+      info.refs.forEach(r => {
+        const li = document.createElement('li');
+        li.innerHTML = `${r.citation} <a href="${r.link}" target="_blank" rel="noopener">PMID: ${r.pmid}</a>`;
+        refList.appendChild(li);
+      });
+    }
+
+    prDelaySlider.addEventListener('input', (e) => { state.prDelay = parseInt(e.target.value); prDelayVal.textContent = `${state.prDelay} ms`; update(); });
+    delaySlider.addEventListener('input', (e) => { state.transmuralDelay = parseInt(e.target.value); delayVal.textContent = `${state.transmuralDelay} ms`; update(); });
+    rvfwMDispSlider.addEventListener('input', (e) => { state.apdDispersal = parseInt(e.target.value); rvfwMDispVal.textContent = `${state.apdDispersal} ms`; update(); });
+
+    endoToggle.addEventListener('change', (e) => { state.layers.endo.active = e.target.checked; update(); });
+    mToggle.addEventListener('change', (e) => { state.layers.m.active = e.target.checked; update(); });
+    epiToggle.addEventListener('change', (e) => { state.layers.epi.active = e.target.checked; update(); });
+
+    endoSlider.addEventListener('input', (e) => { state.layers.endo.pct = parseInt(e.target.value); endoVal.textContent = `${state.layers.endo.pct}%`; update(); });
+    mSlider.addEventListener('input', (e) => { state.layers.m.pct = parseInt(e.target.value); mVal.textContent = `${state.layers.m.pct}%`; update(); });
+    epiSlider.addEventListener('input', (e) => { state.layers.epi.pct = parseInt(e.target.value); epiVal.textContent = `${state.layers.epi.pct}%`; update(); });
+
+    septumSlider.addEventListener('input', (e) => { state.regions.septum = parseInt(e.target.value); septumVal.textContent = `${state.regions.septum}%`; update(); });
+    rvfwSlider.addEventListener('input', (e) => { state.regions.rvfw = parseInt(e.target.value); rvfwVal.textContent = `${state.regions.rvfw}%`; update(); });
+    lvfwSlider.addEventListener('input', (e) => { state.regions.lvfw = parseInt(e.target.value); lvfwVal.textContent = `${state.regions.lvfw}%`; update(); });
+
+    chamberSelect.addEventListener('change', (e) => { 
+      state.chamber = e.target.value; 
+      if (e.target.value === 'HCM') {
+        conditionSelect.value = 'hcm';
+        state.condition = 'hcm';
+        state.regions.septum = 200;
+        septumSlider.value = 200;
+        septumVal.textContent = '200%';
+      } else if (e.target.value === 'RV') {
+        state.regions.rvfw = 120;
+        rvfwSlider.value = 120;
+        rvfwVal.textContent = '120%';
+      }
+      updateEvidencePanel(state.condition);
+      update(); 
+    });
+
+    conditionSelect.addEventListener('change', (e) => { 
+      state.condition = e.target.value; 
+      if (e.target.value === 'hcm') {
+        chamberSelect.value = 'HCM';
+        state.chamber = 'HCM';
+        state.regions.septum = 200;
+        septumSlider.value = 200;
+        septumVal.textContent = '200%';
+      } else if (e.target.value === 'brugada1' || e.target.value === 'brugada2' || e.target.value === 'arvc') {
+        chamberSelect.value = 'RV';
+        state.chamber = 'RV';
+      } else if (e.target.value === 'hf') {
+        chamberSelect.value = 'LV';
+        state.chamber = 'LV';
+        state.transmuralDelay = 65;
+        delaySlider.value = 65;
+        delayVal.textContent = '65 ms';
+      } else if (e.target.value === 'ischemia' || e.target.value === 'infarct' || e.target.value === 'lqt1' || e.target.value === 'lqt2' || e.target.value === 'lqt3') {
+        chamberSelect.value = 'LV';
+        state.chamber = 'LV';
+      } else if (e.target.value === 'burntout') {
+        chamberSelect.value = 'LV';
+        state.chamber = 'LV';
+        state.layers.endo.pct = 40; endoSlider.value = 40; endoVal.textContent = '40%';
+        state.layers.m.pct = 35; mSlider.value = 35; mVal.textContent = '35%';
+        state.layers.epi.pct = 40; epiSlider.value = 40; epiVal.textContent = '40%';
+      }
+      updateEvidencePanel(state.condition);
+      update(); 
+    });
+
+    sweepSlider.addEventListener('input', (e) => {
+      state.sweepSpeed = parseFloat(e.target.value);
+      sweepVal.textContent = `${state.sweepSpeed} mm/s`;
+      document.getElementById('leadInfo').textContent = `${state.sweepSpeed} mm/s | ${state.ecgGain} mm/mV`;
+      update();
+    });
+
+    ecgGainSlider.addEventListener('input', (e) => {
+      state.ecgGain = parseInt(e.target.value);
+      ecgGainVal.textContent = `${state.ecgGain} mm/mV`;
+      document.getElementById('leadInfo').textContent = `${state.sweepSpeed} mm/s | ${state.ecgGain} mm/mV`;
+      update();
+    });
+
+    hrSlider.addEventListener('input', (e) => {
+      state.hr = parseInt(e.target.value);
+      hrVal.textContent = `${state.hr} BPM`;
+      update();
+    });
+
+    btnResetDefault.addEventListener('click', () => {
+      state = JSON.parse(JSON.stringify(DEFAULTS));
+      chamberSelect.value = state.chamber;
+      conditionSelect.value = state.condition;
+
+      prDelaySlider.value = state.prDelay; prDelayVal.textContent = `${state.prDelay} ms`;
+      delaySlider.value = state.transmuralDelay; delayVal.textContent = `${state.transmuralDelay} ms`;
+      rvfwMDispSlider.value = state.apdDispersal; rvfwMDispVal.textContent = `${state.apdDispersal} ms`;
+
+      endoToggle.checked = true; mToggle.checked = true; epiToggle.checked = true;
+      endoSlider.value = 100; endoVal.textContent = '100%';
+      mSlider.value = 100; mVal.textContent = '100%';
+      epiSlider.value = 100; epiVal.textContent = '100%';
+
+      septumSlider.value = 100; septumVal.textContent = '100%';
+      rvfwSlider.value = 100; rvfwVal.textContent = '100%';
+      lvfwSlider.value = 100; lvfwVal.textContent = '100%';
+
+      sweepSlider.value = state.sweepSpeed; sweepVal.textContent = `${state.sweepSpeed} mm/s`;
+      ecgGainSlider.value = state.ecgGain; ecgGainVal.textContent = `${state.ecgGain} mm/mV`;
+      hrSlider.value = state.hr; hrVal.textContent = `${state.hr} BPM`;
+
+      document.getElementById('leadInfo').textContent = `${state.sweepSpeed} mm/s | ${state.ecgGain} mm/mV`;
+      updateEvidencePanel('normal');
+      update();
+    });
+
+    function computeParameters() {
+      const cycleLength = 60000 / state.hr;
+      let conductionDelayEpi = state.transmuralDelay;
+
+      let apdEndo = 280 * Math.pow(cycleLength / 1000, 0.35);
+      let apdM = (260 + state.apdDispersal) * Math.pow(cycleLength / 1000, 0.45);
+      let apdEpi = 260 * Math.pow(cycleLength / 1000, 0.35);
+
+      let epiDomeLoss = false;
+      let isIschemia = false;
+      let isInfarct = false;
+      let isHeartFailure = false;
+
+      if (state.condition === 'brugada1') {
+        epiDomeLoss = true;
+        conductionDelayEpi += 25;
+      } else if (state.condition === 'brugada2') {
+        conductionDelayEpi += 15;
+      } else if (state.condition === 'arvc') {
+        conductionDelayEpi += 68;
+      } else if (state.condition === 'lqt1') {
+        apdEndo += 110; apdM += 160; apdEpi += 110;
+      } else if (state.condition === 'lqt2') {
+        apdM += 210; apdEndo += 70; apdEpi += 60;
+      } else if (state.condition === 'lqt3') {
+        apdEndo += 180; apdM += 180; apdEpi += 180;
+      } else if (state.condition === 'hcm') {
+        apdM += 45;
+        conductionDelayEpi += 22;
+      } else if (state.condition === 'burntout') {
+        conductionDelayEpi += 35;
+        apdEndo -= 30; apdM -= 20; apdEpi -= 30;
+      } else if (state.condition === 'ischemia') {
+        isIschemia = true;
+        conductionDelayEpi += 32;
+        apdEndo -= 95;
+      } else if (state.condition === 'infarct') {
+        isInfarct = true;
+        conductionDelayEpi += 55;
+        apdEndo -= 140;
+        apdEpi -= 120;
+      } else if (state.condition === 'hf') {
+        isHeartFailure = true;
+        apdM += 65;
+        conductionDelayEpi += 55;
+      }
+
+      return { cycleLength, conductionDelayEpi, apdEndo, apdM, apdEpi, epiDomeLoss, isIschemia, isInfarct, isHeartFailure };
+    }
+
+    function getAPVoltage(t, delay, apd, isEpi, epiDomeLoss, isIschemiaLayer, isInfarctLayer) {
+      const localT = t - delay;
+
+      if (isIschemiaLayer) {
+        if (localT < 0) return -60;
+        if (localT < 5) return -60 + (localT / 5) * 75;
+        
+        const pT = localT - 5;
+        if (pT < 20) return 15 - (pT / 20) * 15;
+        
+        const p2T = pT - 20;
+        const adjAPD = Math.max(40, apd - 25);
+        
+        if (p2T < adjAPD) {
+          const frac = p2T / adjAPD;
+          return 0 - Math.pow(frac, 1.8) * 60;
+        }
+        return -60;
+      }
+
+      if (isInfarctLayer) {
+        if (localT < 0) return -55;
+        if (localT < 8) return -55 + (localT / 8) * 35;
+        
+        const pT = localT - 8;
+        const adjAPD = Math.max(30, apd - 30);
+        
+        if (pT < adjAPD) {
+          const frac = pT / adjAPD;
+          return -20 - Math.pow(frac, 1.5) * 35;
+        }
+        return -55;
+      }
+
+      if (localT < 0) return -85;
+      if (localT < 5) return -85 + (localT / 5) * 115;
+
+      const pT = localT - 5;
+      if (pT < 25) {
+        if (isEpi) {
+          if (epiDomeLoss) return 30 - (pT / 25) * 110;
+          return 30 - (pT / 25) * 35;
+        }
+        return 30 - (pT / 25) * 15;
+      }
+
+      const p2T = pT - 25;
+      const adjAPD = Math.max(50, apd - 30);
+
+      if (isEpi && epiDomeLoss) {
+        if (p2T < adjAPD * 0.3) return -80 + Math.sin(p2T * 0.05) * 5;
+        return -85;
+      }
+
+      if (p2T < adjAPD) {
+        const frac = p2T / adjAPD;
+        const plateauV = isEpi ? -10 : 15;
+        return plateauV - Math.pow(frac, 2) * (plateauV - (-85));
+      }
+
+      return -85;
+    }
+
+    function fitCanvasToDisplay(canvas) {
+      const parent = canvas.parentElement;
+      const width = parent.clientWidth;
+      const height = parent.clientHeight;
+      if (width > 0 && height > 0 && (canvas.width !== width || canvas.height !== height)) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+    }
+
+    function render3DMap(ctx, params, currentMarkerX) {
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+      if (w === 0 || h === 0) return;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.fillStyle = '#070a0f';
+      ctx.fillRect(0, 0, w, h);
+
+      const msPerPx = (1000 / (w * (state.sweepSpeed / 25)));
+      const cl = params.cycleLength;
+
+      const currentTotalTimeMs = currentMarkerX * msPerPx;
+      const t = currentTotalTimeMs % cl;
+
+      const ventOnsetMs = 20 + state.prDelay;
+
+      const vEndo = getAPVoltage(t, ventOnsetMs, params.apdEndo, false, false, params.isIschemia, params.isInfarct);
+      const vM = getAPVoltage(t, ventOnsetMs + params.conductionDelayEpi * 0.5, params.apdM, false, false, false, params.isInfarct);
+      const vEpi = getAPVoltage(t, ventOnsetMs + params.conductionDelayEpi, params.apdEpi, true, params.epiDomeLoss, false, params.isInfarct);
+
+      function voltageToColor(v) {
+        if (v > 0) {
+          const ratio = Math.min(1, v / 30);
+          return `rgb(${Math.round(56 + ratio * 199)}, ${Math.round(189 - ratio * 50)}, ${Math.round(248 - ratio * 100)})`;
+        } else if (v > -60) {
+          return '#fbbf24';
+        } else {
+          const ratio = Math.min(1, (-v - 60) / 25);
+          return `rgb(${Math.round(248)}, ${Math.round(113 * (1 - ratio))}, ${Math.round(113 * (1 - ratio))})`;
+        }
+      }
+
+      const rawEndoW = state.layers.endo.active ? (state.layers.endo.pct / 100) * 85 : 0;
+      const rawMW = state.layers.m.active ? (state.layers.m.pct / 100) * 110 : 0;
+      const rawEpiW = state.layers.epi.active ? (state.layers.epi.pct / 100) * 85 : 0;
+
+      const totalRawW = rawEndoW + rawMW + rawEpiW || 1;
+      const maxAvailableSlabW = w < 500 ? w * 0.40 : w * 0.44;
+
+      const endoW = (rawEndoW / totalRawW) * maxAvailableSlabW;
+      const mW = (rawMW / totalRawW) * maxAvailableSlabW;
+      const epiW = (rawEpiW / totalRawW) * maxAvailableSlabW;
+
+      const slabStartX = 12;
+      const slabY = 20;
+      const slabH = h - 40;
+
+      const endoStartX = slabStartX;
+      const mStartX = endoStartX + endoW;
+      const epiStartX = mStartX + mW;
+
+      if (endoW > 0) {
+        ctx.fillStyle = voltageToColor(vEndo);
+        ctx.fillRect(endoStartX, slabY, endoW, slabH);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(endoStartX, slabY, endoW, slabH);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 9px -apple-system, sans-serif';
+        if (endoW > 18) ctx.fillText('ENDO', endoStartX + 4, slabY + 14);
+        ctx.font = '8px monospace';
+        if (endoW > 18) ctx.fillText(`${Math.round(vEndo)}mV`, endoStartX + 4, slabY + 26);
+      }
+
+      if (mW > 0) {
+        ctx.fillStyle = voltageToColor(vM);
+        ctx.fillRect(mStartX, slabY, mW, slabH);
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(mStartX, slabY, mW, slabH);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 9px -apple-system, sans-serif';
+        if (mW > 18) ctx.fillText('MID-M', mStartX + 4, slabY + 14);
+        ctx.font = '8px monospace';
+        if (mW > 18) ctx.fillText(`${Math.round(vM)}mV`, mStartX + 4, slabY + 26);
+      }
+
+      if (epiW > 0) {
+        ctx.fillStyle = voltageToColor(vEpi);
+        ctx.fillRect(epiStartX, slabY, epiW, slabH);
+        ctx.strokeStyle = '#f87171';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(epiStartX, slabY, epiW, slabH);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 9px -apple-system, sans-serif';
+        if (epiW > 18) ctx.fillText('EPI', epiStartX + 4, slabY + 14);
+        ctx.font = '8px monospace';
+        if (epiW > 18) ctx.fillText(`${Math.round(vEpi)}mV`, epiStartX + 4, slabY + 26);
+      }
+
+      const deltaV = (state.layers.endo.active ? vEndo : 0) - (state.layers.epi.active ? vEpi : 0);
+
+      const gaugeCenterX = w > 480 ? w * 0.74 : w * 0.70;
+      const gaugeCenterY = h / 2 - 2;
+      const gaugeRadius = Math.min(68, h * 0.42);
+
+      ctx.beginPath();
+      ctx.arc(gaugeCenterX, gaugeCenterY, gaugeRadius, 0.75 * Math.PI, 2.25 * Math.PI);
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 9;
+      ctx.stroke();
+
+      const clampedDeltaV = Math.max(-60, Math.min(60, deltaV));
+      const normalizedVal = (clampedDeltaV + 60) / 120;
+      const needleAngle = 0.75 * Math.PI + normalizedVal * (1.5 * Math.PI);
+
+      ctx.beginPath();
+      ctx.arc(gaugeCenterX, gaugeCenterY, gaugeRadius, 0.75 * Math.PI, needleAngle);
+      ctx.strokeStyle = Math.abs(deltaV) < 6 ? '#34d399' : (deltaV > 0 ? '#38bdf8' : '#f87171');
+      ctx.lineWidth = 7;
+      ctx.stroke();
+
+      const intervals = [-60, -40, -20, 0, 20, 40, 60];
+      intervals.forEach(val => {
+        const norm = (val + 60) / 120;
+        const ang = 0.75 * Math.PI + norm * (1.5 * Math.PI);
+        
+        const isMajor = val % 20 === 0;
+        const tickInner = gaugeRadius - (isMajor ? 11 : 6);
+        const tickOuter = gaugeRadius + 3;
+
+        const tx1 = gaugeCenterX + Math.cos(ang) * tickInner;
+        const ty1 = gaugeCenterY + Math.sin(ang) * tickInner;
+        const tx2 = gaugeCenterX + Math.cos(ang) * tickOuter;
+        const ty2 = gaugeCenterY + Math.sin(ang) * tickOuter;
+
+        ctx.strokeStyle = val === 0 ? '#34d399' : '#94a3b8';
+        ctx.lineWidth = val === 0 ? 2.2 : 1.2;
+        ctx.beginPath();
+        ctx.moveTo(tx1, ty1);
+        ctx.lineTo(tx2, ty2);
+        ctx.stroke();
+
+        const labelRadius = gaugeRadius - 19;
+        const lx = gaugeCenterX + Math.cos(ang) * labelRadius;
+        const ly = gaugeCenterY + Math.sin(ang) * labelRadius;
+
+        ctx.fillStyle = val === 0 ? '#34d399' : '#cbd5e1';
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${val > 0 ? '+' : ''}${val}`, lx, ly);
+      });
+
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(gaugeCenterX, gaugeCenterY, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      const needleX = gaugeCenterX + Math.cos(needleAngle) * (gaugeRadius - 12);
+      const needleY = gaugeCenterY + Math.sin(needleAngle) * (gaugeRadius - 12);
+
+      ctx.shadowColor = Math.abs(deltaV) < 6 ? '#34d399' : (deltaV > 0 ? '#38bdf8' : '#f87171');
+      ctx.shadowBlur = 10;
+      ctx.strokeStyle = Math.abs(deltaV) < 6 ? '#34d399' : (deltaV > 0 ? '#38bdf8' : '#f87171');
+      ctx.lineWidth = 3.0;
+      ctx.beginPath();
+      ctx.moveTo(gaugeCenterX, gaugeCenterY);
+      ctx.lineTo(needleX, needleY);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 9px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText('TRANSMURAL ΔV GAUGE', gaugeCenterX, gaugeCenterY - gaugeRadius - 8);
+
+      ctx.fillStyle = Math.abs(deltaV) < 6 ? '#34d399' : (deltaV > 0 ? '#38bdf8' : '#f87171');
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText(`${deltaV > 0 ? '+' : ''}${Math.round(deltaV)} mV`, gaugeCenterX, gaugeCenterY + gaugeRadius + 16);
+      ctx.textAlign = 'left';
+    }
+
+    function renderAP(ctx, params, currentMarkerX) {
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+      if (w === 0 || h === 0) return;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+      const baselineY = h - 16;
+      const scaleY = (h - 32) / 100;
+      const msPerPx = (1000 / (w * (state.sweepSpeed / 25)));
+      const cl = params.cycleLength;
+
+      const ventOnsetMs = 20 + state.prDelay;
+
+      const layerConfig = [
+        { key: 'endo', delay: 0, apd: params.apdEndo, color: '#38bdf8', isEpi: false, isIsch: params.isIschemia, isInf: params.isInfarct },
+        { key: 'm', delay: params.conductionDelayEpi * 0.5, apd: params.apdM, color: '#fbbf24', isEpi: false, isIsch: false, isInf: params.isInfarct },
+        { key: 'epi', delay: params.conductionDelayEpi, apd: params.apdEpi, color: '#f87171', isEpi: true, isIsch: false, isInf: params.isInfarct }
+      ];
+
+      layerConfig.forEach(l => {
+        const conf = state.layers[l.key];
+        if (!conf.active) return;
+
+        const fraction = conf.pct / 100;
+
+        ctx.strokeStyle = l.color;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        for (let x = 0; x < w; x++) {
+          const tTotal = x * msPerPx;
+          const t = tTotal % cl;
+          const rawV = getAPVoltage(t, ventOnsetMs + l.delay, l.apd, l.isEpi, params.epiDomeLoss, l.isIsch, l.isInf);
+          const v = -85 + (rawV + 85) * fraction;
+          const y = baselineY - (v + 85) * scaleY;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        ctx.shadowColor = '#fbbf24';
+        ctx.shadowBlur = 8;
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+
+        let inRepol = false;
+        for (let x = 0; x < w; x++) {
+          const tTotal = x * msPerPx;
+          const t = tTotal % cl;
+          const localT = t - (ventOnsetMs + l.delay);
+
+          if (localT >= 110 && localT <= l.apd + 15) {
+            const rawV = getAPVoltage(t, ventOnsetMs + l.delay, l.apd, l.isEpi, params.epiDomeLoss, l.isIsch, l.isInf);
+            const v = -85 + (rawV + 85) * fraction;
+            const y = baselineY - (v + 85) * scaleY;
+            if (!inRepol) {
+              ctx.moveTo(x, y);
+              inRepol = true;
+            } else {
+              ctx.lineTo(x, y);
+            }
+          } else {
+            inRepol = false;
+          }
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      });
+
+      if (currentMarkerX <= w) {
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(currentMarkerX, 0);
+        ctx.lineTo(currentMarkerX, h);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const currentTotalTimeMs = currentMarkerX * msPerPx;
+        const currentBeatTimeMs = currentTotalTimeMs % cl;
+        const endoRawV = getAPVoltage(currentBeatTimeMs, ventOnsetMs, params.apdEndo, false, false, params.isIschemia, params.isInfarct);
+        const endoY = baselineY - (endoRawV + 85) * scaleY;
+
+        ctx.fillStyle = '#34d399';
+        ctx.beginPath();
+        ctx.arc(currentMarkerX, endoY, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#34d399';
+        ctx.font = 'bold 9px monospace';
+        ctx.fillText('Sync', Math.min(currentMarkerX + 4, w - 50), 12);
+      }
+    }
+
+    function renderSingleLead(ctx, params, leadType, currentMarkerX) {
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+      if (w === 0 || h === 0) return;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.fillStyle = '#0a0305';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.18)';
+      ctx.lineWidth = 0.5;
+      for (let x = 0; x < w; x += 5) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 5) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+      ctx.lineWidth = 1.0;
+      for (let x = 0; x < w; x += 25) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 25) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+      const baselineY = h / 2 + 3;
+      const mmPerMv = (state.ecgGain / 10) * 16;
+
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(6, baselineY);
+      ctx.lineTo(10, baselineY);
+      ctx.lineTo(10, baselineY - mmPerMv);
+      ctx.lineTo(18, baselineY - mmPerMv);
+      ctx.lineTo(18, baselineY);
+      ctx.lineTo(22, baselineY);
+      ctx.stroke();
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText(`LEAD ${leadType}`, 26, 14);
+
+      const msPerPx = 1000 / (w * (state.sweepSpeed / 25));
+      const cl = params.cycleLength;
+
+      function getEcgNoise(tPx) {
+        const baselineDrift = Math.sin(tPx * 0.003) * 0.02 + Math.sin(tPx * 0.0008) * 0.03;
+        const myoArtifact = (Math.random() - 0.5) * 0.015;
+        return baselineDrift + myoArtifact;
+      }
+
+      const projSeptum = leadType === 'V1' ? 0.35 : (leadType === 'aVF' ? 0.15 : -0.30);
+      const projRVFW = leadType === 'V1' ? 0.65 : (leadType === 'aVF' ? 0.20 : -0.45);
+      const projLVFW = leadType === 'V1' ? -0.70 : (leadType === 'aVF' ? 0.85 : 0.95);
+
+      const wSeptum = state.regions.septum / 100;
+      const wRV = state.regions.rvfw / 100;
+      const wLV = state.regions.lvfw / 100;
+
+      let epsilonPeakX = -1;
+      let epsilonPeakY = -1;
+
+      const pOnsetMs = 20;
+      const pDurationMs = 60;
+      const prInterval = state.prDelay;
+      const qrsStart = pOnsetMs + prInterval;
+
+      const qrsDuration = 80 + params.conductionDelayEpi;
+      const jPointMs = qrsStart + qrsDuration;
+
+      let stDurationMs = 70;
+      if (state.condition === 'lqt3') stDurationMs = 220;
+
+      const tWaveStartMs = jPointMs + stDurationMs;
+
+      let tWaveDurationMs = 180 + (params.apdM - params.apdEpi) * 0.6;
+      if (state.condition === 'lqt1') tWaveDurationMs = 280;
+      else if (state.condition === 'lqt2') tWaveDurationMs = 260;
+
+      const tWaveEndMs = tWaveStartMs + tWaveDurationMs;
+
+      function getRawSignal(t, xPx) {
+        let vEndo = -85, vM = -85, vEpi = -85;
+        const pctEndo = state.layers.endo.active ? state.layers.endo.pct / 100 : 0;
+        const pctM = state.layers.m.active ? state.layers.m.pct / 100 : 0;
+        const pctEpi = state.layers.epi.active ? state.layers.epi.pct / 100 : 0;
+
+        if (state.layers.endo.active) vEndo = -85 + (getAPVoltage(t, qrsStart, params.apdEndo, false, false, params.isIschemia, params.isInfarct) + 85) * pctEndo;
+        if (state.layers.m.active) vM = -85 + (getAPVoltage(t, qrsStart + params.conductionDelayEpi * 0.5, params.apdM, false, false, false, params.isInfarct) + 85) * pctM;
+        if (state.layers.epi.active) vEpi = -85 + (getAPVoltage(t, qrsStart + params.conductionDelayEpi, params.apdEpi, true, params.epiDomeLoss, false, params.isInfarct) + 85) * pctEpi;
+
+        const transmuralDiff = ((vEndo - vM) * 0.5 + (vM - vEpi) * 0.5) / 35;
+        let vSignal = 0;
+
+        if (t >= pOnsetMs && t < pOnsetMs + pDurationMs) {
+          const pFrac = (t - pOnsetMs) / pDurationMs;
+          const pAmp = leadType === 'aVF' ? 0.18 : (leadType === 'V6' ? 0.14 : 0.10);
+          vSignal += Math.sin(pFrac * Math.PI) * pAmp;
+        }
+
+        // --- RIGOROUS INFARCT / STEMI MORPHOLOGY ENGINE ---
+        if (state.condition === 'infarct' && (leadType === 'V6' || leadType === 'aVF')) {
+          const totalInfarctDuration = qrsDuration + stDurationMs + tWaveDurationMs;
+          if (t >= qrsStart && t < qrsStart + totalInfarctDuration) {
+            const relT = t - qrsStart;
+            
+            // 1. Broad, Deep Pathologic Q Wave (>40 ms, >25% depth)
+            const qDur = 48;
+            if (relT < qDur) {
+              const qFrac = relT / qDur;
+              return -1.15 * Math.sin(qFrac * Math.PI) * wLV * pctEndo;
+            }
+            
+            // 2. Hyperacute R Wave / Peak (Residual Pericardial Vector)
+            const rDur = 30;
+            if (relT >= qDur && relT < qDur + rDur) {
+              const rFrac = (relT - qDur) / rDur;
+              return (0.45 * Math.sin(rFrac * Math.PI) - 0.25) * wLV;
+            }
+            
+            // 3. Convex Tombstone ST Elevation & Inverted/Biphasic T Wave Sequence
+            const stTSegStart = qDur + rDur;
+            const stTDur = totalInfarctDuration - stTSegStart;
+            if (relT >= stTSegStart) {
+              const stFrac = (relT - stTSegStart) / stTDur;
+              
+              // Parabolic convex-upward dome merging smoothly into late T-wave inversion
+              const convexST = 1.35 * Math.sin(Math.pow(stFrac, 0.65) * Math.PI);
+              const invertedT = -0.45 * Math.sin(Math.pow(stFrac, 1.4) * Math.PI * 2);
+              
+              return (convexST + invertedT) * (wLV * 0.8 + wSeptum * 0.2) * pctEpi;
+            }
+          }
+          return 0;
+        }
+
+        if (t >= qrsStart && t < jPointMs) {
+          const qT = t - qrsStart;
+
+          if (qT < 30) {
+            let septalAmp = 0.25 * projSeptum * wSeptum * pctEndo;
+            if (state.condition === 'hcm') {
+              if (leadType === 'aVF' || leadType === 'V6') septalAmp = -0.65 * wSeptum * pctEndo;
+              else if (leadType === 'V1') septalAmp = 0.75 * wSeptum * pctEndo;
+            } else if (state.condition === 'hf') {
+              if (leadType === 'V1') septalAmp = -0.45 * wSeptum * pctEndo;
+              else if (leadType === 'V6') septalAmp = 0.35 * wSeptum * pctEndo;
+            } else if (state.condition === 'burntout') {
+              septalAmp *= 0.35;
+            }
+            vSignal += Math.sin(qT / 30 * Math.PI) * septalAmp;
+          }
+
+          if (qT >= 15 && qT < 75 + params.conductionDelayEpi * 0.5) {
+            const fT = (qT - 15) / (60 + params.conductionDelayEpi * 0.5);
+            let rvComp = Math.sin(fT * Math.PI) * projRVFW * wRV * pctM;
+            let lvComp = Math.sin(fT * Math.PI) * projLVFW * wLV * pctM;
+            
+            if (state.condition === 'hcm') lvComp *= 1.85;
+            else if (state.condition === 'hf') {
+              if (leadType === 'V6') lvComp *= 1.6;
+              if (leadType === 'V1') lvComp *= 1.4;
+            } else if (state.condition === 'burntout') {
+              rvComp *= 0.40; lvComp *= 0.40;
+            }
+            vSignal += (rvComp + lvComp);
+          }
+
+          if (qT >= 50 && qT < 110 + params.conductionDelayEpi) {
+            const lT = (qT - 50) / (60 + params.conductionDelayEpi);
+            let terminalAmp = 0.35 * projRVFW * wRV * pctEpi;
+
+            if (state.condition === 'brugada1' || state.condition === 'brugada2') {
+              if (leadType === 'V1') terminalAmp *= 1.8;
+              if (leadType === 'V6') terminalAmp *= -0.8;
+            } else if (state.condition === 'burntout') {
+              terminalAmp *= 0.35;
+            }
+
+            vSignal += Math.sin(lT * Math.PI) * terminalAmp;
+          }
+
+          if (state.condition === 'arvc' && leadType === 'V1') {
+            const epsStart = 100 + params.conductionDelayEpi * 0.4;
+            if (qT >= epsStart && qT < epsStart + 45) {
+              const epsT = (qT - epsStart) / 45;
+              const epsilonNotch = (Math.sin(epsT * Math.PI * 2.5) * 0.32 + Math.cos(epsT * Math.PI * 1.5) * 0.15) * wRV * wSeptum * pctEpi;
+              vSignal += epsilonNotch;
+
+              if (epsT > 0.4 && epsT < 0.6) {
+                epsilonPeakX = xPx;
+                epsilonPeakY = baselineY - vSignal * mmPerMv;
+              }
+            }
+          }
+        }
+
+        if (t >= jPointMs && t < tWaveStartMs) {
+          const stFrac = (t - jPointMs) / stDurationMs;
+
+          if (state.condition === 'brugada1' && leadType === 'V1') {
+            vSignal += (0.55 - stFrac * 0.15) * wRV * pctEpi;
+          } else if (state.condition === 'brugada2' && leadType === 'V1') {
+            vSignal += (0.35 - Math.sin(stFrac * Math.PI) * 0.12) * wRV * pctEpi;
+          } else if (state.condition === 'ischemia' && (leadType === 'V6' || leadType === 'aVF')) {
+            vSignal -= 0.48 * (wLV * 0.8 + wSeptum * 0.2);
+          } else if (state.condition === 'lqt3') {
+            vSignal += 0.02;
+          } else if (state.condition === 'hf') {
+            if (leadType === 'V6' || leadType === 'aVF') vSignal -= 0.35 * stFrac * wLV * pctM;
+            else if (leadType === 'V1') vSignal += 0.35 * stFrac * wRV * pctM;
+          } else {
+            vSignal += transmuralDiff * 0.05; 
+          }
+        }
+
+        if (t >= tWaveStartMs && t < tWaveEndMs) {
+          const tFrac = (t - tWaveStartMs) / tWaveDurationMs;
+          const tSin = Math.sin(tFrac * Math.PI);
+
+          if (state.condition === 'brugada1' && leadType === 'V1') {
+            vSignal -= tSin * 0.45 * wRV * pctEpi;
+          } else if (state.condition === 'brugada2' && leadType === 'V1') {
+            vSignal += tSin * 0.32 * wRV * pctEpi;
+          } else if (state.condition === 'arvc' && leadType === 'V1') {
+            vSignal -= tSin * 0.85 * (wRV * 0.7 + wSeptum * 0.3) * pctEpi;
+          } else if (state.condition === 'lqt1') {
+            let tLeadWeight = (leadType === 'aVF') ? 1.15 : (leadType === 'V6' ? 1.35 : 0.75);
+            vSignal += Math.pow(tSin, 0.7) * tLeadWeight * 1.45 * pctM;
+          } else if (state.condition === 'lqt2') {
+            let notch = Math.sin(tFrac * Math.PI * 2) * 0.25;
+            let tLeadWeight = (leadType === 'aVF') ? 0.35 : (leadType === 'V6' ? 0.45 : 0.25);
+            vSignal += (tSin * tLeadWeight + notch) * pctM;
+          } else if (state.condition === 'lqt3') {
+            let narrowSin = Math.sin(Math.pow(tFrac, 1.8) * Math.PI);
+            let tLeadWeight = (leadType === 'aVF') ? 0.95 : (leadType === 'V6' ? 1.15 : 0.65);
+            vSignal += narrowSin * tLeadWeight * pctEndo;
+          } else if (state.condition === 'hcm') {
+            let hcmTWeight = (leadType === 'V6' || leadType === 'aVF') ? -1.65 : 0.55;
+            vSignal += tSin * hcmTWeight * (wLV * 0.6 + wSeptum * 0.4) * pctM;
+          } else if (state.condition === 'burntout') {
+            vSignal += tSin * 0.18 * (wLV * 0.5 + wSeptum * 0.5);
+          } else if (state.condition === 'ischemia') {
+            if (leadType === 'V6' || leadType === 'aVF') {
+              vSignal += tSin * 1.55 * pctEndo;
+            }
+          } else if (state.condition === 'hf') {
+            if (leadType === 'V6' || leadType === 'aVF') vSignal -= tSin * 0.95 * wLV * pctM;
+            else if (leadType === 'V1') vSignal += tSin * 1.05 * wRV * pctM;
+          } else {
+            let tLeadWeight = (leadType === 'aVF') ? 0.75 : (leadType === 'V6' ? 0.85 : 0.50);
+            const dispersalFactor = 1.0 + ((params.apdM - params.apdEpi) - 45) / 100;
+            vSignal += tSin * transmuralDiff * tLeadWeight * 1.65 * dispersalFactor;
+          }
+        }
+
+        return vSignal;
+      }
+
+      const rawPoints = [];
+      for (let x = 26; x < w; x++) {
+        const tTotal = x * msPerPx;
+        const t = tTotal % cl;
+        const noise = getEcgNoise(x);
+        const sig = getRawSignal(t, x);
+        rawPoints.push(sig + noise);
+      }
+
+      const filteredPoints = [];
+      const alpha = 0.65;
+      let lastVal = rawPoints[0] || 0;
+
+      for (let i = 0; i < rawPoints.length; i++) {
+        lastVal = lastVal + alpha * (rawPoints[i] - lastVal);
+        filteredPoints.push(lastVal);
+      }
+
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 4;
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 2.0;
+      ctx.beginPath();
+
+      for (let i = 0; i < filteredPoints.length; i++) {
+        const x = i + 26;
+        const y = baselineY - filteredPoints[i] * mmPerMv;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#e0f2fe';
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+
+      for (let i = 0; i < filteredPoints.length; i++) {
+        const x = i + 26;
+        const y = baselineY - filteredPoints[i] * mmPerMv;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.shadowColor = '#fbbf24';
+      ctx.shadowBlur = 10;
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 3.4;
+      ctx.beginPath();
+
+      let inTWave = false;
+      for (let i = 0; i < filteredPoints.length; i++) {
+        const x = i + 26;
+        const tTotal = x * msPerPx;
+        const t = tTotal % cl;
+
+        if (t >= tWaveStartMs && t <= tWaveEndMs) {
+          const y = baselineY - filteredPoints[i] * mmPerMv;
+          if (!inTWave) {
+            ctx.moveTo(x, y);
+            inTWave = true;
+          } else {
+            ctx.lineTo(x, y);
+          }
+        } else {
+          inTWave = false;
+        }
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      if (currentMarkerX <= w) {
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(currentMarkerX, 0);
+        ctx.lineTo(currentMarkerX, h);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      if (state.condition === 'arvc' && leadType === 'V1' && epsilonPeakX > 0) {
+        ctx.fillStyle = '#fbbf24';
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 1.2;
+
+        ctx.beginPath();
+        ctx.arc(epsilonPeakX, epsilonPeakY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.font = 'bold 9px monospace';
+        ctx.fillText('ε Wave', epsilonPeakX - 20, epsilonPeakY - 10);
+      }
+    }
+
+    function updateMetrics(params) {
+      const actualAPDDispersal = Math.round(params.apdM - params.apdEpi);
+      mPR.textContent = `${state.prDelay} ms`;
+      mAPD.textContent = `${actualAPDDispersal} ms`;
+      mDelay.textContent = `${Math.round(params.conductionDelayEpi)} ms`;
+      mCL.textContent = `${Math.round(params.cycleLength)} ms`;
+
+      const calculatedTpe = Math.round(52 + actualAPDDispersal * 0.55 + params.conductionDelayEpi * 0.15);
+      mTpe.textContent = `${calculatedTpe} ms`;
+
+      if (state.condition === 'brugada1') {
+        mJpoint.textContent = `+${(0.38 * (state.layers.epi.pct/100) * (state.regions.rvfw/100)).toFixed(2)} mV`;
+        mQRS.textContent = `${Math.round(92 + params.conductionDelayEpi)} ms`;
+      } else if (state.condition === 'arvc') {
+        mJpoint.textContent = '-0.25 mV';
+        mQRS.textContent = `${Math.round(110 + params.conductionDelayEpi*0.8)} ms`;
+      } else if (state.condition === 'hcm') {
+        mJpoint.textContent = '-0.45 mV';
+        mQRS.textContent = `${Math.round(105 + params.conductionDelayEpi*0.6)} ms`;
+      } else if (state.condition === 'burntout') {
+        mJpoint.textContent = '0.00 mV';
+        mQRS.textContent = `${Math.round(95 + params.conductionDelayEpi*0.7)} ms`;
+      } else if (state.condition === 'ischemia') {
+        mJpoint.textContent = '-0.42 mV';
+        mQRS.textContent = `${Math.round(114 + params.conductionDelayEpi*0.5)} ms`;
+      } else if (state.condition === 'infarct') {
+        mJpoint.textContent = '+1.35 mV';
+        mQRS.textContent = `${Math.round(132 + params.conductionDelayEpi*0.6)} ms`;
+      } else if (state.condition === 'hf') {
+        mJpoint.textContent = '-0.85 mV';
+        mQRS.textContent = `${Math.round(135 + params.conductionDelayEpi*0.8)} ms`;
+      } else {
+        mJpoint.textContent = '+0.02 mV';
+        mQRS.textContent = `${Math.round(82 + params.conductionDelayEpi*0.5)} ms`;
+      }
+    }
+
+    let lastTimestamp = null;
+    let currentMarkerX = 26;
+
+    function animate(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const deltaSec = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+
+      fitCanvasToDisplay(map3dCanvas);
+      fitCanvasToDisplay(apCanvas);
+      fitCanvasToDisplay(ecgV1);
+      fitCanvasToDisplay(ecgAVF);
+      fitCanvasToDisplay(ecgV6);
+
+      const w = apCanvas.width;
+      const pixelSpeed = (state.sweepSpeed / 25) * 110;
+      currentMarkerX += pixelSpeed * deltaSec;
+      if (currentMarkerX > w) {
+        currentMarkerX = 26;
+      }
+
+      const params = computeParameters();
+      render3DMap(map3dCanvas.getContext('2d'), params, currentMarkerX);
+      renderAP(apCanvas.getContext('2d'), params, currentMarkerX);
+      renderSingleLead(ecgV1.getContext('2d'), params, 'V1', currentMarkerX);
+      renderSingleLead(ecgAVF.getContext('2d'), params, 'aVF', currentMarkerX);
+      renderSingleLead(ecgV6.getContext('2d'), params, 'V6', currentMarkerX);
+      updateMetrics(params);
+
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    function update() {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      lastTimestamp = null;
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', update);
+    setTimeout(() => {
+      updateEvidencePanel('normal');
+      update();
+    }, 50);
+  </script>
+</body>
+</html>
